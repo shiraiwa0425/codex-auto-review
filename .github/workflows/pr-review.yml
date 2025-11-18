@@ -20,6 +20,9 @@ jobs:
       - name: Codexに日本語でレビュー依頼
         uses: actions/github-script@v7
         with:
+          # Personal Access Tokenを使用してCodexをトリガー
+          # GITHUB_TOKENではCodexが反応しないため、PATが必要
+          github-token: ${{ secrets.PAT_TOKEN }}
           script: |
             await github.rest.issues.createComment({
               owner: context.repo.owner,
