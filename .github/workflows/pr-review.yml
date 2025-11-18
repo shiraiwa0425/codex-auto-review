@@ -15,6 +15,8 @@ on:
 jobs:
   request-codex-review:
     runs-on: ubuntu-latest
+    # フォークPRではSecretsが利用できないため、内部PRのみ実行
+    if: github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
       - name: Codexに日本語でレビュー依頼

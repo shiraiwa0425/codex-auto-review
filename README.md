@@ -30,6 +30,13 @@ GitHub ActionsとCodexを使った自動コードレビューシステム
 - GitHub ActionsのデフォルトGITHUB_TOKENではCodexが反応しないため、PATが必須
 - Fine-grained tokenではなく、Classic tokenを使用してください
 
+### フォークPRの制限
+
+- **フォークPRでは自動レビュー依頼は動作しません**
+  - セキュリティ上の理由により、フォークPRでは`secrets.PAT_TOKEN`にアクセスできません
+  - フォークPRのコントリビューターは手動で`@codex`とメンションしてレビューを依頼してください
+  - 内部ブランチからのPR（同一リポジトリ内）では自動化が正常に動作します
+
 ## ワークフロー
 
 ### 1. PR Review Request (`pr-review.yml`)
@@ -43,7 +50,8 @@ GitHub ActionsとCodexを使った自動コードレビューシステム
 - Personal Access Tokenを使用してCodexをトリガー
 
 **なぜopenedイベントは含まない？**
-- PR作成時はCodexが自動的にレビューするため不要
+- PR作成直後は手動でレビュー依頼することを想定
+- 初回から自動化したい場合は`types: [opened, synchronize]`に変更可能
 
 ### 2. Comment Reply Automation (`comment-reply.yml`)
 
@@ -93,7 +101,8 @@ GitHub ActionsとCodexを使った自動コードレビューシステム
 ### 基本的な使用フロー
 
 1. **PRを作成**
-   - Codexが自動的に初回レビューを実施
+   - 初回は手動で`@codex`とメンションしてレビューを依頼
+   - または、最初のコミットをプッシュするまで待つ
 
 2. **コミットをプッシュ**
    - GitHub Actionsが「@codex 日本語でレビューしてください」とコメント
@@ -106,6 +115,7 @@ GitHub ActionsとCodexを使った自動コードレビューシステム
 ### 手動でのレビュー依頼
 
 いつでも`@codex`とメンションすることで、手動でレビューを依頼できます。
+特にPR作成直後の初回レビューでは手動メンションが必要です。
 
 ## トラブルシューティング
 
