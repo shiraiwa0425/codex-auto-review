@@ -14,6 +14,10 @@ on:
 jobs:
   reply-to-badge-comments:
     runs-on: ubuntu-latest
+    # 注意: フォークPRのコメントでもこのジョブは実行されますが、
+    # secrets.PAT_TOKENにアクセスできないため失敗します。
+    # issue_comment/pull_request_review_commentイベントでは
+    # フォーク判定が複雑なため、現状は失敗を許容しています。
 
     steps:
       - name: Badge付きコメントに返信
