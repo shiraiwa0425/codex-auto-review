@@ -14,17 +14,17 @@ on:
 jobs:
   reply-to-badge-comments:
     runs-on: ubuntu-latest
-    # secrets.PAT_TOKENがない (フォークPRなど) 場合はステップでスキップ
+    # 注意: フォークPRのコメントでもこのジョブは実行されますが、
+    # secrets.PAT_TOKENにアクセスできないため失敗します。
+    # issue_comment/pull_request_review_commentイベントでは
+    # フォーク判定が複雑なため、現状は失敗を許容しています。
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Badge付きコメントに返信 (config-driven)
-        if: ${{ env.PAT_TOKEN != '' }}
         uses: actions/github-script@v7
-        env:
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
         with:
           # Personal Access Tokenを使用してCodexをトリガー
           # GITHUB_TOKENではCodexが反応しないため、PATが必要
