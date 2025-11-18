@@ -4,7 +4,7 @@ GitHub ActionsとCodexを使った自動コードレビューシステム
 
 ## 概要
 
-このプロジェクトは、PRへの新しいコミット時に自動的にCodexにレビューを依頼し、Badge付きコメントに自動返信する仕組みを提供します。
+このプロジェクトは、PRへの新しいコミット時に自動的にCodexにレビューを依頼し、Badge付きコメントに自動返信する仕組みを提供します。ルールや文言は `.codex/config.json` に集約し、GitHub Actions から参照します。
 
 ## 要件
 
@@ -25,10 +25,27 @@ GitHub ActionsとCodexを使った自動コードレビューシステム
      - `pull-requests: write`
      - `issues: write`
 
+4. **Codex設定ファイル**
+   - `.codex/config.json` にレビュー依頼メッセージやバッジ判定キーワードを記述
+   - 例:
+     ```json
+     {
+       "review": {
+         "request_comment": "@codex 日本語でレビューしてください"
+       },
+       "badges": {
+         "keywords": ["P1 Badge", "P2 Badge", "P3 Badge"],
+         "reply_message": "@codex 日本語でコメントを対応してください",
+         "reaction": "eyes"
+       }
+     }
+     ```
+
 ### 注意事項
 
 - GitHub ActionsのデフォルトGITHUB_TOKENではCodexが反応しないため、PATが必須
 - Fine-grained tokenではなく、Classic tokenを使用してください
+- 運用ルールの詳細は `AGENTS.md` も参照してください
 
 ### フォークPRの制限
 
@@ -46,7 +63,7 @@ GitHub ActionsとCodexを使った自動コードレビューシステム
 - force push、rebase、merge時にも発火
 
 **動作**:
-- 「@codex 日本語でレビューしてください」とコメント
+- `.codex/config.json` の `review.request_comment` を使って Codex へレビュー依頼コメントを投稿
 - Personal Access Tokenを使用してCodexをトリガー
 
 **なぜopenedイベントは含まない？**
@@ -57,10 +74,7 @@ GitHub ActionsとCodexを使った自動コードレビューシステム
 
 **トリガー**: `issue_comment`, `pull_request_review_comment` (created, edited)
 
-**条件**: コメントに以下のいずれかが含まれる場合
-- `P1 Badge`
-- `P2 Badge`
-- `P3 Badge`
+**条件**: `.codex/config.json` の `badges.keywords` に含まれる文字列がコメント本文にある場合
 
 **動作**:
 1. 👀 リアクションを追加
@@ -109,8 +123,7 @@ GitHub ActionsとCodexを使った自動コードレビューシステム
    - Codexがレビューを実施
 
 3. **Badge付きコメントを投稿**
-   - 「P1 Badge」などを含むコメントを投稿
-   - 自動的に👀リアクションと返信コメントが追加される
+   - 「P1 Badge」などを含むコメントを投稿すると、`.codex/config.json` に沿って👀リアクションと返信コメントが追加される
 
 ### 手動でのレビュー依頼
 
