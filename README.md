@@ -1,20 +1,125 @@
 # Review Commit Iteration
 
-このリポジトリは、GitHub ActionsとCodexを使った自動レビューシステムのテストプロジェクトです。
+GitHub ActionsとCodexを使った自動コードレビューシステム
+
+## 概要
+
+このプロジェクトは、PRへの新しいコミット時に自動的にCodexにレビューを依頼し、Badge付きコメントに自動返信する仕組みを提供します。
+
+## 要件
+
+### 必須要件
+
+1. **Personal Access Token (Classic)**
+   - GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
+   - 必要なスコープ: `repo` (フルアクセス)
+   - リポジトリのSecrets(`PAT_TOKEN`)に登録が必要
+
+2. **Codex連携**
+   - リポジトリでCodexが利用可能であること
+   - Codexがメンションに反応する設定になっていること
+
+3. **GitHub Actions権限**
+   - ワークフローで使用する権限:
+     - `contents: read`
+     - `pull-requests: write`
+     - `issues: write`
+
+### 注意事項
+
+- GitHub ActionsのデフォルトGITHUB_TOKENではCodexが反応しないため、PATが必須
+- Fine-grained tokenではなく、Classic tokenを使用してください
 
 ## ワークフロー
 
-### PR Review Request (pr-review.yml)
-- PRに新しいコミットがプッシュされた時に自動的にCodexにレビューを依頼
+### 1. PR Review Request (`pr-review.yml`)
+
+**トリガー**: `pull_request` (synchronize)
+- PRに新しいコミットがプッシュされた時のみ動作
+- force push、rebase、merge時にも発火
+
+**動作**:
+- 「@codex 日本語でレビューしてください」とコメント
 - Personal Access Tokenを使用してCodexをトリガー
 
-### Comment Reply Automation (comment-reply.yml)
-- P1/P2/P3 Badge付きコメントに自動返信
-- PRレビューコメントと通常のissueコメントの両方に対応
-- 👀 リアクションを自動追加
+**なぜopenedイベントは含まない？**
+- PR作成時はCodexが自動的にレビューするため不要
+
+### 2. Comment Reply Automation (`comment-reply.yml`)
+
+**トリガー**: `issue_comment`, `pull_request_review_comment` (created, edited)
+
+**条件**: コメントに以下のいずれかが含まれる場合
+- `P1 Badge`
+- `P2 Badge`
+- `P3 Badge`
+
+**動作**:
+1. 👀 リアクションを追加
+   - PRレビューコメント: `createForPullRequestReviewComment`
+   - 通常コメント: `createForIssueComment`
+2. 返信コメントを投稿
+   - PRレビューコメント: スレッド返信
+   - 通常コメント: 新規コメント
+
+## セットアップ
+
+1. **Personal Access Tokenの作成**
+   ```
+   GitHub Settings
+   → Developer settings
+   → Personal access tokens
+   → Tokens (classic)
+   → Generate new token (classic)
+   → repo にチェック
+   ```
+
+2. **Secretsに登録**
+   ```
+   リポジトリのSettings
+   → Secrets and variables
+   → Actions
+   → New repository secret
+   → Name: PAT_TOKEN
+   → Secret: (作成したトークンを貼り付け)
+   ```
+
+3. **ワークフローファイルの配置**
+   - `.github/workflows/pr-review.yml`
+   - `.github/workflows/comment-reply.yml`
 
 ## 使い方
 
-1. PRを作成すると、Codexが自動的にレビューを実施
-2. 新しいコミットをプッシュすると、GitHub ActionsがCodexにレビューを依頼
-3. Badge付きコメントには自動的に返信とリアクションが付きます
+### 基本的な使用フロー
+
+1. **PRを作成**
+   - Codexが自動的に初回レビューを実施
+
+2. **コミットをプッシュ**
+   - GitHub Actionsが「@codex 日本語でレビューしてください」とコメント
+   - Codexがレビューを実施
+
+3. **Badge付きコメントを投稿**
+   - 「P1 Badge」などを含むコメントを投稿
+   - 自動的に👀リアクションと返信コメントが追加される
+
+### 手動でのレビュー依頼
+
+いつでも`@codex`とメンションすることで、手動でレビューを依頼できます。
+
+## トラブルシューティング
+
+### Codexが反応しない
+
+- PATが正しく設定されているか確認
+- PATのスコープに`repo`が含まれているか確認
+- Classic tokenを使用しているか確認（Fine-grainedではなく）
+
+### ワークフローが実行されない
+
+- Actions タブでワークフローの実行状況を確認
+- トリガー条件（synchronize、コメント内容）を確認
+
+## ライセンス
+
+MIT
