@@ -1,0 +1,34 @@
+name: PR Review Request
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+on:
+  pull_request:
+    # opened: Codexが自動でレビューするため不要
+    # synchronize: PRのHEADブランチが更新された時に動作
+    #              (通常のコミットプッシュ、force push、rebase、merge時に発火)
+    types: [synchronize]
+
+jobs:
+  request-codex-review:
+    runs-on: ubuntu-latest
+    # フォークPRではSecretsが利用できないため、内部PRのみ実行
+    if: github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - name: Codexに日本語でレビュー依頼
+        uses: actions/github-script@v7
+        with:
+          # Personal Access Tokenを使用してCodexをトリガー
+          # GITHUB_TOKENではCodexが反応しないため、PATが必要
+          github-token: ${{ secrets.PAT_TOKEN }}
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '@codex 日本語でレビューしてください'
+            });

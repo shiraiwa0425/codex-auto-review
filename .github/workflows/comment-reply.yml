@@ -1,0 +1,66 @@
+name: Comment Reply Automation
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+on:
+  issue_comment:
+    types: [created, edited]
+  pull_request_review_comment:
+    types: [created, edited]
+
+jobs:
+  reply-to-badge-comments:
+    runs-on: ubuntu-latest
+    # 注意: フォークPRのコメントでもこのジョブは実行されますが、
+    # secrets.PAT_TOKENにアクセスできないため失敗します。
+    # issue_comment/pull_request_review_commentイベントでは
+    # フォーク判定が複雑なため、現状は失敗を許容しています。
+
+    steps:
+      - name: Badge付きコメントに返信
+        if: ${{ github.event.comment && (contains(github.event.comment.body, 'P1 Badge') || contains(github.event.comment.body, 'P2 Badge') || contains(github.event.comment.body, 'P3 Badge')) }}
+        uses: actions/github-script@v7
+        with:
+          # Personal Access Tokenを使用してCodexをトリガー
+          # GITHUB_TOKENではCodexが反応しないため、PATが必要
+          github-token: ${{ secrets.PAT_TOKEN }}
+          script: |
+            const isPullRequestReviewComment = context.payload.comment.pull_request_review_id;
+
+            // リアクションを追加
+            if (isPullRequestReviewComment) {
+              await github.rest.reactions.createForPullRequestReviewComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: context.payload.comment.id,
+                content: 'eyes'
+              });
+            } else {
+              await github.rest.reactions.createForIssueComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: context.payload.comment.id,
+                content: 'eyes'
+              });
+            }
+
+            // コメントを投稿
+            if (isPullRequestReviewComment) {
+              await github.rest.pulls.createReplyForReviewComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                comment_id: context.payload.comment.id,
+                body: '@codex 日本語でコメントを対応してください'
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: '@codex 日本語でコメントを対応してください'
+              });
+            }
