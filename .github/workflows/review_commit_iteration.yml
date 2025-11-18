@@ -20,8 +20,9 @@ jobs:
         run: console.log('hello world');
         shell: node {0}
 
-      - name: おはようコメントに返信する
-        if: ${{ github.event.comment && contains(github.event.comment.body, 'おはよう') }}
+      - name: codexがレビューする
+        if: ${{ github.event.comment && contains(github.event.comment.body, '@chatgpt-codex-connector') && !contains(github.event.comment.body, 'Codex Review') }}
+
         uses: actions/github-script@v7
         with:
           script: |
