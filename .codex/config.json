@@ -1,0 +1,16 @@
+{
+  "review": {
+    "language": "ja",
+    "trigger": {
+      "events": ["pull_request"],
+      "types": ["synchronize"]
+    },
+    "mention": "@codex",
+    "request_comment": "@codex レビューしてください"
+  },
+  "badges": {
+    "keywords": ["P1 Badge", "P2 Badge", "P3 Badge"],
+    "reply_message": "@codex コメントを対応してください",
+    "reaction": "eyes"
+  }
+}

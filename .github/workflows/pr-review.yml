@@ -19,16 +19,15 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
-      - name: Codexに日本語でレビュー依頼
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Codexにレビュー依頼 (config-driven)
         uses: actions/github-script@v7
         with:
           # Personal Access Tokenを使用してCodexをトリガー
           # GITHUB_TOKENではCodexが反応しないため、PATが必要
           github-token: ${{ secrets.PAT_TOKEN }}
           script: |
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: '@codex 日本語でレビューしてください'
-            });
+            const script = require('./.github/scripts/request-codex-review.js');
+            await script({ github, context });
