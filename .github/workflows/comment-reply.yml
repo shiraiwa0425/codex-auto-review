@@ -54,13 +54,13 @@ jobs:
                 repo: context.repo.repo,
                 pull_number: context.issue.number,
                 comment_id: context.payload.comment.id,
-                body: '@codex コメントを対応してください'
+                body: '@codex 日本語でコメントを対応してください'
               });
             } else {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
-                body: '@codex コメントを対応してください'
+                body: '@codex 日本語でコメントを対応してください'
               });
             }
