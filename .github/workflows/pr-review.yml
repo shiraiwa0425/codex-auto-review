@@ -7,7 +7,10 @@ permissions:
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    # opened: Codexが自動でレビューするため不要
+    # synchronize: PRのHEADブランチが更新された時に動作
+    #              (通常のコミットプッシュ、force push、rebase、merge時に発火)
+    types: [synchronize]
 
 jobs:
   request-codex-review:
