@@ -1,7 +1,8 @@
-name: CI
+name: codex
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 on:
   pull_request:
     types: [opened, synchronize]
@@ -20,8 +21,8 @@ jobs:
         run: console.log('hello world');
         shell: node {0}
 
-      - name: codexがレビューする
-        if: ${{ github.event.comment && contains(github.event.comment.body, '@chatgpt-codex-connector') && !contains(github.event.comment.body, 'Codex Review') }}
+      - name: codexのレビューコメントを自身でレビューする
+        if: ${{ github.event.comment && contains(github.event.comment.body, 'P1 Badge') || contains(github.event.comment.body, 'P2 Badge') || contains(github.event.comment.body, 'P3 Badge')}}
 
         uses: actions/github-script@v7
         with:
@@ -30,7 +31,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: 'おはようございます!今日も良い一日を!☀️'
+              body: '@codex レビューしてください'
             });
     # strategy:
     #   matrix:
