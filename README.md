@@ -1,4 +1,4 @@
-# Review Commit Iteration
+# Codex Auto Review
 
 GitHub ActionsとCodexを使った自動コードレビューシステム
 
