@@ -1,4 +1,4 @@
-name: codex
+name: codex review CI
 permissions:
   contents: write
   pull-requests: write
@@ -21,18 +21,37 @@ jobs:
         run: console.log('hello world');
         shell: node {0}
 
-      - name: codexのレビューコメントを自身でレビューする
-        if: ${{ github.event.comment && contains(github.event.comment.body, 'P1 Badge') || contains(github.event.comment.body, 'P2 Badge') || contains(github.event.comment.body, 'P3 Badge')}}
-
+      - name: codexにレビュー依頼のリプライ
+        if: ${{ github.event.comment && (contains(github.event.comment.body, 'P1 Badge') || contains(github.event.comment.body, 'P2 Badge') || contains(github.event.comment.body, 'P3 Badge')) }}
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.issues.createComment({
+            // リアクションを追加
+            await github.rest.reactions.createForIssueComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: '@codex レビューしてください'
+              comment_id: context.payload.comment.id,
+              content: 'eyes'
             });
+
+            // PRレビューコメントの場合はスレッド返信
+            if (context.payload.comment.pull_request_review_id) {
+              await github.rest.pulls.createReplyForReviewComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                comment_id: context.payload.comment.id,
+                body: '@codex コメントを対応してください'
+              });
+            } else {
+              // 通常のissueコメントの場合は新規コメント
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: '@codex コメントを対応してください'
+              });
+            }
     # strategy:
     #   matrix:
     #     node-version: [18.x, 20.x]
