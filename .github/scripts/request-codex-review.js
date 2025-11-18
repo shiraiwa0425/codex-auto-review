@@ -6,7 +6,7 @@ module.exports = async ({ github, context }) => {
   const config = fs.existsSync(configPath)
     ? JSON.parse(fs.readFileSync(configPath, 'utf8'))
     : {};
-  const body = config?.review?.request_comment || '@codex 日本語でレビューしてください';
+  const body = config?.review?.request_comment || '@codex レビューしてください';
 
   await github.rest.issues.createComment({
     owner: context.repo.owner,

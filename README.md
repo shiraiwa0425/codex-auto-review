@@ -31,11 +31,11 @@ GitHub ActionsとCodexを使った自動コードレビューシステム
      ```json
      {
        "review": {
-         "request_comment": "@codex 日本語でレビューしてください"
+         "request_comment": "@codex レビューしてください"
        },
        "badges": {
          "keywords": ["P1 Badge", "P2 Badge", "P3 Badge"],
-         "reply_message": "@codex 日本語でコメントを対応してください",
+         "reply_message": "@codex コメントを対応してください",
          "reaction": "eyes"
        }
      }

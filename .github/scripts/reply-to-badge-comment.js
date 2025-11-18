@@ -19,7 +19,7 @@ module.exports = async ({ github, context }) => {
     ? JSON.parse(fs.readFileSync(configPath, 'utf8'))
     : {};
   const keywords = config?.badges?.keywords || [];
-  const replyMessage = config?.badges?.reply_message || '@codex 日本語でコメントを対応してください';
+  const replyMessage = config?.badges?.reply_message || '@codex コメントを対応してください';
   const reaction = config?.badges?.reaction || 'eyes';
 
   // 条件に合わなければ何もしない
